@@ -48,14 +48,6 @@ def get_images_urls(bucket_name):
 		
 
 	return images
-def download_image(image, bucket_name, destination_file_name):
-	'''Downloads a blob from the bucket.'''
-	storage_client = storage.Client()
-	blob.download_to_filename(destination_file_name)
-	cv2.imshow(destination_file_name)
-	print('Blob {} downloaded to {}.'.format(
-		source_blob_name,
-		destination_file_name))
 
 
 def classifyImage(url):
@@ -63,8 +55,9 @@ def classifyImage(url):
 	model = app.models.get('general-v1.3')
 	image = ClImage(url=url)
 	print(model.predict([image]))
+def compareImage(im1, im2):
+	pass
+
 #create_bucket(BUCKET_NAME)
 #upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
 images=get_images(BUCKET_NAME)
-#download_image(images[0])
-#download_blob(BUCKET_NAME,)
