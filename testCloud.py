@@ -2,8 +2,8 @@ from google.cloud import storage
 import cv2
 import os
 import requests
-import shutil
-
+from clarifai.rest import ClarifaiApp
+from clarifai.rest import Image as ClImage
 
 BUCKET_NAME="ru-you"
 IMAGE_FILENAME='temporaryImage.jpg'
@@ -13,7 +13,6 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
 	bucket = storage_client.get_bucket(bucket_name)
 	blob = bucket.blob(destination_blob_name)
 	blob.upload_from_filename(source_file_name)
-
 	print('File {} uploaded to {}.'.format(
 		source_file_name,
 		destination_blob_name))
@@ -22,11 +21,16 @@ def create_bucket(bucket_name):
 	storage_client=storage.Client()
 	bucket=storage_client.create_bucket(bucket_name)
 	print('Bucket {} created'.format(bucket.name))
+
+
+def displayImageFromBlob(blob):
+	blob.download_to_filename(IMAGE_FILENAME)
+	img=cv2.imread(IMAGE_FILENAME)
+	cv2.imshow('name',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
 	
-	
-	
-	
-def get_images(bucket_name):
+def get_images_urls(bucket_name):
 	'''Lists all the blobs in the bucket.'''
 	storage_client = storage.Client()
 	bucket = storage_client.get_bucket(bucket_name)
@@ -37,15 +41,12 @@ def get_images(bucket_name):
 		images.append(bucket.blob(blob.name))
 		#uri=blob.media_link
 		#print(requests.get(uri))
-		#url=blob.generate_signed_url(999999999999999)
+		url=blob.generate_signed_url(999999999999999)
+		images.append(url)
 		#r=requests.get(url,stream=True)
 		#print(r.headers)
 		
-		blob.download_to_filename(IMAGE_FILENAME)
-		img=cv2.imread(IMAGE_FILENAME)
-		cv2.imshow('name',img)
-		cv2.waitKey(0)
-		cv2.destroyAllWindows()
+
 	return images
 def download_image(image, bucket_name, destination_file_name):
 	'''Downloads a blob from the bucket.'''
@@ -56,9 +57,14 @@ def download_image(image, bucket_name, destination_file_name):
 		source_blob_name,
 		destination_file_name))
 
-	
+
+def classifyImage(url):
+	app = ClarifaiApp(api_key='6bfb288a66c14572ac765df2aac1c764')
+	model = app.models.get('general-v1.3')
+	image = ClImage(url=url)
+	print(model.predict([image]))
 #create_bucket(BUCKET_NAME)
-upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
+#upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
 images=get_images(BUCKET_NAME)
 #download_image(images[0])
 #download_blob(BUCKET_NAME,)
