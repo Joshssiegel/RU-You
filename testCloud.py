@@ -1,5 +1,5 @@
 from google.cloud import storage
-import cv2
+#import cv2
 import os
 import requests
 from clarifai.rest import ClarifaiApp
@@ -7,9 +7,9 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 
-
 BUCKET_NAME="ru-you"
 IMAGE_FILENAME='temporaryImage.jpg'
+API_KEY='6bfb288a66c14572ac765df2aac1c764'
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
 	"""Uploads a file to the bucket."""
 	storage_client = storage.Client()
@@ -39,6 +39,7 @@ def displayImageFromUrl(url):
 		ret,img = cap.read()
 		cv2.imshow("win",img)
 		cv2.waitKey()
+
 def getImageUrls(bucket_name):
 	'''Lists all the blobs in the bucket.'''
 	storage_client = storage.Client()
@@ -63,7 +64,7 @@ def getImageUrls(bucket_name):
 
 
 def classifyImage(url):
-	app = ClarifaiApp(api_key='6bfb288a66c14572ac765df2aac1c764')
+	app = ClarifaiApp(api_key=API_KEY)
 	model = app.models.get('general-v1.3')
 	image = ClImage(url=url)
 	print(model.predict([image]))
@@ -89,3 +90,4 @@ images=getImageUrls(BUCKET_NAME)
 displayImageFromUrl(images[1])
 displayImageFromUrl(images[1])
 compareImages(images[1],images[1])
+
