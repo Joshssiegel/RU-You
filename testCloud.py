@@ -4,6 +4,9 @@ import os
 import requests
 from clarifai.rest import ClarifaiApp
 from clarifai.rest import Image as ClImage
+import urllib
+import numpy as np
+
 
 BUCKET_NAME="ru-you"
 IMAGE_FILENAME='temporaryImage.jpg'
@@ -30,18 +33,27 @@ def displayImageFromBlob(blob):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 	
-def get_images_urls(bucket_name):
+def displayImageFromUrl(url):
+	cap = cv2.VideoCapture(url)
+	if( cap.isOpened() ) :
+		ret,img = cap.read()
+		cv2.imshow("win",img)
+		cv2.waitKey()
+def getImageUrls(bucket_name):
 	'''Lists all the blobs in the bucket.'''
 	storage_client = storage.Client()
 	bucket = storage_client.get_bucket(bucket_name)
 	blobs = bucket.list_blobs()
 	images=[]
+	prev=""
 	for blob in blobs:
 		#print('Crc32c: {}'.format(blob.crc32c))
-		images.append(bucket.blob(blob.name))
 		#uri=blob.media_link
 		#print(requests.get(uri))
 		url=blob.generate_signed_url(999999999999999)
+		if(prev == url):
+			print("uh oh")
+		prev=url
 		images.append(url)
 		#r=requests.get(url,stream=True)
 		#print(r.headers)
@@ -55,9 +67,25 @@ def classifyImage(url):
 	model = app.models.get('general-v1.3')
 	image = ClImage(url=url)
 	print(model.predict([image]))
-def compareImage(im1, im2):
-	pass
+def compareImages(im1, im2):
+
+	app = ClarifaiApp(api_key='6bfb288a66c14572ac765df2aac1c764')
+	model = app.models.get('general-v1.3')
+	img1 = ClImage(url=im1)
+	app.inputs.bulk_create_images([img1])
+	search=app.inputs.search_by_image(url=im2)
+	search_result = search[0]
+	score=search_result.score
+	print("Score:", score)
+	app.inputs.delete(search_result.input_id)
+
+	
+	return score
+
 
 #create_bucket(BUCKET_NAME)
 #upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
-images=get_images(BUCKET_NAME)
+images=getImageUrls(BUCKET_NAME)
+displayImageFromUrl(images[1])
+displayImageFromUrl(images[1])
+compareImages(images[1],images[1])
