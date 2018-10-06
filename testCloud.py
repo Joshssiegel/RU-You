@@ -1,15 +1,17 @@
 from google.cloud import storage
-BUCKET_NAME="ru-you"
 import cv2
 import os
 import requests
+import shutil
+
+
+BUCKET_NAME="ru-you"
+IMAGE_FILENAME='temporaryImage.jpg'
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
 	"""Uploads a file to the bucket."""
 	storage_client = storage.Client()
-	print("After")
 	bucket = storage_client.get_bucket(bucket_name)
 	blob = bucket.blob(destination_blob_name)
-	blob.make_public(None)
 	blob.upload_from_filename(source_file_name)
 
 	print('File {} uploaded to {}.'.format(
@@ -33,14 +35,17 @@ def get_images(bucket_name):
 	for blob in blobs:
 		#print('Crc32c: {}'.format(blob.crc32c))
 		images.append(bucket.blob(blob.name))
-		uri=blob.public_url
-		print(requests.get(uri))
-		'''
-		#blob.download_to_filename('delete.jpg')
-		img=cv2.imread(blob)
+		#uri=blob.media_link
+		#print(requests.get(uri))
+		#url=blob.generate_signed_url(999999999999999)
+		#r=requests.get(url,stream=True)
+		#print(r.headers)
+		
+		blob.download_to_filename(IMAGE_FILENAME)
+		img=cv2.imread(IMAGE_FILENAME)
 		cv2.imshow('name',img)
 		cv2.waitKey(0)
-		cv2.destroyAllWindows()'''
+		cv2.destroyAllWindows()
 	return images
 def download_image(image, bucket_name, destination_file_name):
 	'''Downloads a blob from the bucket.'''
@@ -53,7 +58,7 @@ def download_image(image, bucket_name, destination_file_name):
 
 	
 #create_bucket(BUCKET_NAME)
-upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-1")
+upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
 images=get_images(BUCKET_NAME)
 #download_image(images[0])
 #download_blob(BUCKET_NAME,)
