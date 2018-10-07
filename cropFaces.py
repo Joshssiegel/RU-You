@@ -71,7 +71,7 @@ def resizeAndUpdateImage(filename):
 	cv2.imwrite("resized.jpg",image)
 	return image
 def findAndCropFaces(input_filename, max_results=5):
-	resizeAndUpdateImage(input_filename)
+	resizeAndUpdateImageURL(input_filename)
 	with open('resized.jpg', 'rb') as image:
 		faces = detect_face(image, max_results)
 		print('Found {} face{}'.format(

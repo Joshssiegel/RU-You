@@ -12,6 +12,7 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
+#from wand.image import Image
 #import logging
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
@@ -95,11 +96,15 @@ def onCameraTrigger(data, context):
 	bucket=client.get_bucket(data['bucket'])
 	#blobs=bucket.list_blobs()
 	blob=bucket.get_blob(data['name'])
-	blob.download_to_filename("trigger.jpg")
+	url=blob.media_link
+	#imagedata=blob.download_as_string()
+	#newImage=Image(blob=imagedata)
+	#newImage.transform(resize='400x300>')#maybe get rid of >
+	
 	#logging.warn("blob is: ",blob)
-
+	
 	#Resize and Crop Image
-	names=cropFaces.findAndCropFaces("trigger.jpg")#need to download image and send to this method
+	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
 	for name in names:
 		upload_blob(CROPPED_BUCKET_NAME,name,name)
 	
@@ -125,7 +130,6 @@ for img in images:
 
 
 
-
 '''
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
@@ -133,11 +137,21 @@ class MainHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([ ('/',MainHandler)], debug=True)
 '''
 
+def test():
+	storage_client = storage.Client()
+	bucket = storage_client.get_bucket(BUCKET_NAME)
+	blobs = bucket.list_blobs()
+	for blob in blobs:
+		url=blob.generate_signed_url(999999999999999)
+	#newImage=readb64(imagedata)
+	#newImage=Image(blob=imagedata)
+	#newImage.transform(resize='400x300>')#maybe get rid of >
+	
 
 
 
 
-
+#test()
 
 
 
