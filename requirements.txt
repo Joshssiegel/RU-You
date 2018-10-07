@@ -1,7 +1,7 @@
 numpy
 pillow
-cv2
 requests
 clarifai
 urllib
 google-cloud-storage
+opencv-python
