@@ -93,16 +93,13 @@ def onCameraTrigger(data, context):
 	#Get latest uploaded image
 	#logging.warn("Data is: ",data)
 	bucket=client.get_bucket(data['bucket'])
-	blobs=bucket.list_blobs()
-	#blob=bucket.get_blob(data['name'])
-	url=None
-	for blob in blobs:
-		if(blob.name == data['name']):
-			url=blob.generate_signed_url(999999999999999)
+	#blobs=bucket.list_blobs()
+	blob=bucket.get_blob(data['name'])
+	blob.download_to_filename("trigger.jpg")
 	#logging.warn("blob is: ",blob)
 
 	#Resize and Crop Image
-	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
+	names=cropFaces.findAndCropFaces("trigger.jpg")#need to download image and send to this method
 	for name in names:
 		upload_blob(CROPPED_BUCKET_NAME,name,name)
 	
