@@ -12,7 +12,7 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
-import logging
+#import logging
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
 CROPPED_BUCKET_NAME="ru-you-cropped"
@@ -91,12 +91,15 @@ def compareImages(im1, im2):
 def onCameraTrigger(data, context):
 	client = storage.Client()
 	#Get latest uploaded image
-	logging.warn("Data is: ",data)
+	#logging.warn("Data is: ",data)
 	bucket=client.get_bucket(data['bucket'])
-	#blobs=bucket.list_blobs()
-	blob=bucket.get_blob(data['name'])
-	url=blob.generate_signed_url(999999999999999)
-	logging.warn("blob is: ",blob)
+	blobs=bucket.list_blobs()
+	#blob=bucket.get_blob(data['name'])
+	url=None
+	for blob in blobs:
+		if(blob.name == data['name']):
+			url=blob.generate_signed_url(999999999999999)
+	#logging.warn("blob is: ",blob)
 
 	#Resize and Crop Image
 	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
