@@ -89,14 +89,15 @@ def compareImages(im1, im2):
 	return score
 
 def onCameraTrigger(data, context):
-	
+	client = storage.Client()
 	#Get latest uploaded image
 	print("Data is: ",data)
-	blob=data['name']
+	bucket=client.get_bucket(data['bucket'])
+	blob=bucket.get_blob(data['name'])
 	print("blob is: ",blob)
 	url=blob.generate_signed_url(999999999999999)
 	#Resize and Crop Image
-	names=cropFaces.findAndCropFaces(image)#need to download image and send to this method
+	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
 	for name in names:
 		upload_blob(CROPPED_BUCKET_NAME,name,name)
 	
@@ -109,8 +110,11 @@ def onCameraTrigger(data, context):
 #create_bucket(CROPPED_BUCKET_NAME)
 upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
 #upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
-#images=getImageUrls(BUCKET_NAME)
-#for img in images:
+'''images=getImageUrls(BUCKET_NAME)
+for img in images:
+	image=cropFaces.resizeAndUpdateImage(img)
+	cv2.imshow('name',image)
+	cv2.waitKey()'''
 #	displayImageFromUrl(img)
 #displayImageFromUrl(images[6])
 #compareImages(images[7],images[6])

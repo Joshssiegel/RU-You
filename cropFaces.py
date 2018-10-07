@@ -58,7 +58,7 @@ def resizeAndUpdateImage(url):
 	if( cap.isOpened() ) :
 		ret,image = cap.read()
 		#image=cv2.imread(input_filename)
-		scale=(image.shape[1]+image.shape[0])/(1600+1200)
+		scale=(image.shape[1]+image.shape[0])/(400+300)#(1600+1200)
 		print("Scale is: ",scale)
 		image=cv2.resize(image,(int(image.shape[1]/scale),int(image.shape[0]/scale)))
 		cv2.imwrite("resized.jpg",image)
