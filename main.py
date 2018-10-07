@@ -88,7 +88,7 @@ def compareImages(im1, im2):
 	app.inputs.delete(search_result.input_id)
 	return score
 
-def onCameraTigger(data, context):
+def onCameraTrigger(data, context):
 	
 	#Get latest uploaded image
 	url=data.generate_signed_url(999999999999999)
