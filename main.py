@@ -91,7 +91,10 @@ def compareImages(im1, im2):
 def onCameraTrigger(data, context):
 	
 	#Get latest uploaded image
-	url=data.generate_signed_url(999999999999999)
+	print("Data is: ",data)
+	blob=data['name']
+	print("blob is: ",blob)
+	url=blob.generate_signed_url(999999999999999)
 	#Resize and Crop Image
 	names=cropFaces.findAndCropFaces(image)#need to download image and send to this method
 	for name in names:
