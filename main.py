@@ -104,7 +104,7 @@ def onCameraTrigger(data, context):
 
 
 #create_bucket(CROPPED_BUCKET_NAME)
-#upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
+upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
 #upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
 #images=getImageUrls(BUCKET_NAME)
 #for img in images:

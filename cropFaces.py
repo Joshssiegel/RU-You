@@ -35,14 +35,17 @@ def highlight_faces(image, faces, output_filename):
 	draw = ImageDraw.Draw(im)
 	im2=Image.open(image)
 	i=0
+	croppedNames=[]
 	for face in faces:
 		i+=1
 		box = [(vertex.x, vertex.y) for vertex in face.bounding_poly.vertices]
 		im2=crop(im,face.bounding_poly.vertices)
 		draw.line(box + [box[0]], width=5, fill='#00ff00')
 		im2.save("cropped"+str(i)+".jpg")#instead of save, write it to the cloud
+		croppedNames.append("cropped"+str(i)+".jpg")
 		
 	im.save(output_filename)
+	return croppedNames
 
 def crop(image_file, box):
 	vects = box
@@ -69,6 +72,6 @@ def findAndCropFaces(input_filename, output_filename, max_results):
 		print('Writing to file {}'.format(output_filename))
 		# Reset the file pointer, so we can read the file again
 		image.seek(0)
-		highlight_faces(image, faces, output_filename)
+		return highlight_faces(image, faces, output_filename)
 #main('temporaryImage.jpg','output.jpg',5)
 #main('person.jpg','person-updated.jpg',5)
