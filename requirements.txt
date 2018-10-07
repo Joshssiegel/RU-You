@@ -3,4 +3,5 @@ pillow
 requests
 clarifai
 google-cloud-storage
+google-cloud-vision
 opencv-python
