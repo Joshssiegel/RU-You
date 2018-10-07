@@ -1,8 +1,8 @@
 import argparse
 import io
-#from google.cloud import storage
-#from google.cloud import vision
-#from google.cloud.vision import types
+from google.cloud import storage
+from google.cloud import vision
+from google.cloud.vision import types
 from PIL import Image, ImageDraw
 import cv2
 import os
@@ -12,7 +12,6 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
-import webapp2
 
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
@@ -118,12 +117,12 @@ def onCameraTigger(data, context):
 
 
 
-
+'''
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
 		self.response.write("hello world")
 app = webapp2.WSGIApplication([ ('/',MainHandler)], debug=True)
-
+'''
 
 
 
