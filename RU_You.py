@@ -12,8 +12,8 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
-#from wand.image import Image
-#import logging
+import base64
+
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
 CROPPED_BUCKET_NAME="ru-you-cropped"
@@ -89,33 +89,42 @@ def compareImages(im1, im2):
 	app.inputs.delete(search_result.input_id)
 	return score
 
-def onCameraTrigger(data, context):
+def onCameraTrigger(image):
+	thresh=.8
 	client = storage.Client()
-	#Get latest uploaded image
-	#logging.warn("Data is: ",data)
-	bucket=client.get_bucket(data['bucket'])
-	#blobs=bucket.list_blobs()
-	blob=bucket.get_blob(data['name'])
-	url=blob.media_link
-	#imagedata=blob.download_as_string()
-	#newImage=Image(blob=imagedata)
-	#newImage.transform(resize='400x300>')#maybe get rid of >
-	
-	#logging.warn("blob is: ",blob)
-	
-	#Resize and Crop Image
-	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
-	for name in names:
-		upload_blob(CROPPED_BUCKET_NAME,name,name)
-	
+	filenames=cropFaces.findAndCropFaces(image)#filenames of faces we've found and cropped
+	if(len(filenames)==0):
+		return "0"
+	facesToAdd=[]
+	for filename in filenames:
+		counter=0
+		upload_blob(CROPPED_BUCKET_NAME,filename,filename)
+		cropped_bucket=client.get_bucket(CROPPED_BUCKET_NAME)
+		cropped_blob=cropped_bucket.get_blob(filename)
+		cropped_url=cropped_blob.generate_signed_url(999999999999999)
+		#Get latest uploaded image
+		#logging.warn("Data is: ",data)
+		bucket=client.get_bucket(BUCKET_NAME)
+		blobs=bucket.list_blobs()
+		for blob in blobs:
+			counter+=1
+			url=blob.generate_signed_url(999999999999999)
+			score=compareImages(cropped_url,url)
+			if(score>=thresh):
+				cropped_blob.delete()
+				return "0"
+		name='image'+str(counter)
+		facesToAdd.append((filename,name))
+		cropped_blob.delete()
+	for face in facesToAdd:
+		upload_blob(BUCKET_NAME,face[0],face[1])
 
-	#check for similarities
-	#if similar: return False/Delete
-	#else: add to database
+	return "1"
+
 
 
 #create_bucket(CROPPED_BUCKET_NAME)
-upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
+#upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
 #upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
 '''images=getImageUrls(BUCKET_NAME)
 for img in images:
@@ -124,34 +133,18 @@ for img in images:
 	cv2.waitKey()'''
 #	displayImageFromUrl(img)
 #displayImageFromUrl(images[6])
-#compareImages(images[7],images[6])
+#compareImages(images[7],images[6
 
 
 
 
+#imageb64=to_image_string('josh_suit.jpg')
+#imageb64=None
+#img=stringToImage(imageb64)
+#cv2.imshow("anme",img)
+#cv2.waitKey()
+#print(onCameraTrigger(imageb64))
 
-'''
-class MainHandler(webapp2.RequestHandler):
-	def get(self):
-		self.response.write("hello world")
-app = webapp2.WSGIApplication([ ('/',MainHandler)], debug=True)
-'''
-
-def test():
-	storage_client = storage.Client()
-	bucket = storage_client.get_bucket(BUCKET_NAME)
-	blobs = bucket.list_blobs()
-	for blob in blobs:
-		url=blob.generate_signed_url(999999999999999)
-	#newImage=readb64(imagedata)
-	#newImage=Image(blob=imagedata)
-	#newImage.transform(resize='400x300>')#maybe get rid of >
-	
-
-
-
-
-#test()
 
 
 
