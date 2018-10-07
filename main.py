@@ -91,11 +91,13 @@ def compareImages(im1, im2):
 def onCameraTrigger(data, context):
 	client = storage.Client()
 	#Get latest uploaded image
-	print("Data is: ",data)
+	logging.warn("Data is: ",data)
 	bucket=client.get_bucket(data['bucket'])
+	#blobs=bucket.list_blobs()
 	blob=bucket.get_blob(data['name'])
-	print("blob is: ",blob)
 	url=blob.generate_signed_url(999999999999999)
+	logging.warn("blob is: ",blob)
+
 	#Resize and Crop Image
 	names=cropFaces.findAndCropFaces(url)#need to download image and send to this method
 	for name in names:
