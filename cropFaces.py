@@ -62,6 +62,9 @@ def resizeAndUpdateImageURL(url):
 		print("Scale is: ",scale)
 		image=cv2.resize(image,(int(image.shape[1]/scale),int(image.shape[0]/scale)))
 		cv2.imwrite("resized.jpg",image)
+	else:
+		print("URL IS: ",url)
+		image = None
 	return image
 def resizeAndUpdateImage(filename):
 	image=cv2.imread(filename)
