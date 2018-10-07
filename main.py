@@ -12,11 +12,14 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
+import webapp2
+
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
 CROPPED_BUCKET_NAME="ru-you-cropped"
 IMAGE_FILENAME='temporaryImage.jpg'
 API_KEY='6bfb288a66c14572ac765df2aac1c764'
+
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
 	"""Uploads a file to the bucket."""
 	storage_client = storage.Client()
@@ -102,11 +105,31 @@ def onCameraTigger(data, context):
 
 
 #create_bucket(CROPPED_BUCKET_NAME)
-upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
+#upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
 #upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
 #images=getImageUrls(BUCKET_NAME)
 #for img in images:
 #	displayImageFromUrl(img)
 #displayImageFromUrl(images[6])
 #compareImages(images[7],images[6])
+
+
+
+
+
+
+
+class MainHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.write("hello world")
+app = webapp2.WSGIApplication([ ('/',MainHandler)], debug=True)
+
+
+
+
+
+
+
+
+
 
