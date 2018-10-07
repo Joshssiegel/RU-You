@@ -1,18 +1,19 @@
 import argparse
-import io	
+import io
 from google.cloud import storage
 from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
-#import cv2
+import cv2
 import os
 import requests
 from clarifai.rest import ClarifaiApp
 from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
-
+import cropFaces
 BUCKET_NAME="ru-you"
+CAMERA_BUCKET_NAME="ru-you-camera"
 IMAGE_FILENAME='temporaryImage.jpg'
 API_KEY='6bfb288a66c14572ac765df2aac1c764'
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -21,9 +22,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
 	bucket = storage_client.get_bucket(bucket_name)
 	blob = bucket.blob(destination_blob_name)
 	blob.upload_from_filename(source_file_name)
-	print('File {} uploaded to {}.'.format(
-		source_file_name,
-		destination_blob_name))
+	print('File {} uploaded to {}.'.format(source_file_name,destination_blob_name))
 
 def create_bucket(bucket_name):
 	storage_client=storage.Client()
@@ -75,7 +74,6 @@ def classifyImage(url):
 	print(model.predict([image]))
 
 def compareImages(im1, im2):
-
 	app = ClarifaiApp(api_key='6bfb288a66c14572ac765df2aac1c764')
 	model = app.models.get('general-v1.3')
 	img1 = ClImage(url=im1)
@@ -85,75 +83,23 @@ def compareImages(im1, im2):
 	score=search_result.score
 	print("Score:", score)
 	app.inputs.delete(search_result.input_id)
-
-	
 	return score
 
-
-	
-
-def get_crop_hint(path):
-	"""Detect crop hints on a single image and return the first result."""
-	client = vision.ImageAnnotatorClient()
-
-	with io.open(path, 'rb') as image_file:
-		content = image_file.read()
-
-	image = types.Image(content=content)
-
-	crop_hints_params = types.CropHintsParams(aspect_ratios=[1.77])
-	image_context = types.ImageContext(crop_hints_params=crop_hints_params)
-
-	response = client.crop_hints(image=image, image_context=image_context)
-	hints = response.crop_hints_annotation.crop_hints
-
-	# Get bounds for the first crop hint using an aspect ratio of 1.77.
-	vertices = hints[0].bounding_poly.vertices
-
-	return vertices
+def onTigger():
+	#Get latest uploaded image
+	image=getImageUrls(CAMERA_BUCKET_NAME)
+	#Resize and Crop Image
+	#check for similarities
+	#if similar: return False/Delete
+	#else: add to database
 
 
-def draw_hint(image_file):
-	"""Draw a border around the image using the hints in the vector list."""
-	vects = get_crop_hint(image_file)
-
-	im = Image.open(image_file)
-	draw = ImageDraw.Draw(im)
-	draw.polygon([
-		vects[0].x, vects[0].y,
-		vects[1].x, vects[1].y,
-		vects[2].x, vects[2].y,
-		vects[3].x, vects[3].y], None, 'red')
-	im.save('output-hint.jpg', 'JPEG')
-
-
-def crop_to_hint(image_file):
-	"""Crop the image using the hints in the vector list."""
-	vects = get_crop_hint(image_file)
-
-	im = Image.open(image_file)
-	im2 = im.crop([vects[0].x, vects[0].y,
-				  vects[2].x - 1, vects[2].y - 1])
-	im2.save('output-crop.jpg', 'JPEG')
-
-
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument('image_file', help='The image you\'d like to crop.')
-	parser.add_argument('mode', help='Set to "crop" or "draw".')
-	args = parser.parse_args()
-
-	parser = argparse.ArgumentParser()
-
-	if args.mode == 'crop':
-		crop_to_hint(args.image_file)
-	elif args.mode == 'draw':
-		draw_hint(args.image_file)
-
-#create_bucket(BUCKET_NAME)
-#upload_blob(BUCKET_NAME,'testImg.jpg',"test-image-2")
-images=getImageUrls(BUCKET_NAME)
-displayImageFromUrl(images[1])
-displayImageFromUrl(images[1])
-compareImages(images[1],images[1])
+#create_bucket(CAMERA_BUCKET_NAME)
+#upload_blob(BUCKET_NAME,'.jpg',"test-image-6")
+#upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
+#images=getImageUrls(BUCKET_NAME)
+#for img in images:
+#	displayImageFromUrl(img)
+#displayImageFromUrl(images[6])
+#compareImages(images[7],images[6])
 
