@@ -50,12 +50,15 @@ def crop(image_file, box):
 	im2 = im.crop([vects[0].x, vects[0].y,
 				  vects[2].x - 1, vects[2].y - 1])
 	return im2
-def resizeAndUpdateImage(filename):
-	image=cv2.imread(input_filename)
-	scale=(image.shape[1]+image.shape[0])/(1600+1200)
-	print("Scale is: ",scale)
-	image=cv2.resize(image,(int(image.shape[1]/scale),int(image.shape[0]/scale)))
-	cv2.imwrite("resized.jpg",image)
+def resizeAndUpdateImage(url):
+	cap = cv2.VideoCapture(url)
+	if( cap.isOpened() ) :
+		ret,image = cap.read()
+		#image=cv2.imread(input_filename)
+		scale=(image.shape[1]+image.shape[0])/(1600+1200)
+		print("Scale is: ",scale)
+		image=cv2.resize(image,(int(image.shape[1]/scale),int(image.shape[0]/scale)))
+		cv2.imwrite("resized.jpg",image)
 	return image
 def findAndCropFaces(input_filename, output_filename, max_results):
 	resizeAndUpdateImage(input_filename)

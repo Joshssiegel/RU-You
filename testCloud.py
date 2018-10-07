@@ -14,6 +14,7 @@ import numpy as np
 import cropFaces
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
+CROPPED_BUCKET_NAME="ru-you-cropped"
 IMAGE_FILENAME='temporaryImage.jpg'
 API_KEY='6bfb288a66c14572ac765df2aac1c764'
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -85,17 +86,23 @@ def compareImages(im1, im2):
 	app.inputs.delete(search_result.input_id)
 	return score
 
-def onTigger():
+def onCameraTigger(data, context):
+	
 	#Get latest uploaded image
-	image=getImageUrls(CAMERA_BUCKET_NAME)
+	url=data.generate_signed_url(999999999999999)
 	#Resize and Crop Image
+	names=cropFaces.findAndCropFaces(image)#need to download image and send to this method
+	for name in names:
+		upload_blob(CROPPED_BUCKET_NAME,name,name)
+	
+
 	#check for similarities
 	#if similar: return False/Delete
 	#else: add to database
 
 
-#create_bucket(CAMERA_BUCKET_NAME)
-#upload_blob(BUCKET_NAME,'.jpg',"test-image-6")
+#create_bucket(CROPPED_BUCKET_NAME)
+upload_blob(CAMERA_BUCKET_NAME,'josh_suit.jpg',"test-image-9")
 #upload_blob(BUCKET_NAME,'cropped1.jpg',"test-image-8")
 #images=getImageUrls(BUCKET_NAME)
 #for img in images:
