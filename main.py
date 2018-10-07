@@ -12,7 +12,7 @@ from clarifai.rest import Image as ClImage
 import urllib
 import numpy as np
 import cropFaces
-
+import logging
 BUCKET_NAME="ru-you"
 CAMERA_BUCKET_NAME="ru-you-camera"
 CROPPED_BUCKET_NAME="ru-you-cropped"
